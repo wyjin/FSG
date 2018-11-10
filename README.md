@@ -1,3 +1,3 @@
 I love bamboo!
 
-http://man7.org/linux/man-pages/man7/inotify.7.html
+A nice wrapper for fanotify https://lwn.net/Articles/339253/
