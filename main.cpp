@@ -13,6 +13,19 @@
 
 using namespace std;
 
+void pid2name(uint32_t pid, char* name_buf) {                                                                                                                                                                                             
+  char comm_buf[32] = {'\0'};                                                                                                                                                                                                             
+                                                                                                                                                                                                                                          
+  sprintf(comm_buf, "/bin/ls /proc/%d/", pid);                                                                                                                                                                                            
+  FILE *fp;                                                                                                                                                                                                                               
+  fp = popen(comm_buf, "r");                                                                                                                                                                                                              
+  if (fp == NULL) {                                                                                                                                                                                                                       
+    printf("error when trying to get process name for pid %d", pid);                                                                                                                                                                      
+    exit(1);                                                                                                                                                                                                                              
+  }                                                                                                                                                                                                                                       
+  pclose(fp);                                                                                                                                                                                                                             
+}  
+
 class Solution {
 private:
 	bool verbose;
