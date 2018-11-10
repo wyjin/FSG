@@ -1,68 +1,117 @@
 #include <iostream>
 #include <iomanip>
 #include <unordered_map>
+#include <fcntl.h>
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/fanotify.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#define CHK(expr, errcode) if((expr)==errcode) perror(#expr), exit(EXIT_FAILURE)
 
 using namespace std;
 
 class Solution {
+private:
+	bool verbose;
+	string mode;// either SNAPSHOT or REALTIME
+	vector<string> files_to_track;
 public:
-	// does everything
+	Solution(int argc, char** argv) : verbose(false) {
+		parse_command_line(argc, argv);
+	}
+
 	void run() {
-		build_application_mapping();
-		while(true) {
-			// listens for file system read/writes
-			pair<pid_t, string> access = get_access();
-			string app = applications[access.first];
-			string file = access.second;
-			accesses[app].add(file);
-			cout << app << " accessed file " << file << endl;
+		if (mode == "SNAPSHOT") {
+			get_snapshot();
 		}
+		else {
+			get_realtime();
+		}
+
 	}
 private:
-	void build_application_mapping() {
-		// get a list of pid's
+	void get_snapshot() {
+		string command; // TODO: make lsof command from given files
+		system(command);
 	}
 
-	pair<pid_t, string> get_access();
-
-	// maps pid to application name
-	unordered_map<pid_t, string> applications;
-
-	// maps applications to which files they accessed
-	unordered_map<string, unordered_set<string>> accesses;
-
-	// maps pid to parent pids (if parent is 0, it's a top level process)
-	unordered_map<pid_t, pid_t> parents;
-
-	unordered_set<string> files_to_track;
-}
-
-void parse_command_line(int argc, char *argv[],vector<string> & files_to_track) {
-	static struct option longopts[] = {
-		{ "verbose",		no_argument,		nullptr,	'v' },
-		{ "files",			required_argument,	nullptr,	'f' },
-		{ nullptr,			0,					nullptr,	'\0' }
-	};
-
-	int idx = 0;
-	char c;
-	while ((c = char((getopt_long(argc, argv, "vf:", longopts, &idx)))) != -1) {
-		switch (c) {
-		case 'v':
-			VERBOSE = true;
-			break;
-		case 'f':
-      // TODO: make this work
-      files_to_track.push_back(optarg);
-			break;
+	void get_realtime() {
+		int fan;
+		char buf[4096];
+		char fdpath[32];
+		char path[PATH_MAX + 1];
+		ssize_t buflen, linklen;
+		struct fanotify_event_metadata *metadata;
+		CHK(fan = fanotify_init(FAN_CLASS_NOTIF, O_RDONLY), -1);
+		while(true) {
+			for (auto & file : files_to_track) {
+				CHK(fanotify_mark(fan, FAN_MARK_ADD | FAN_MARK_MOUNT, FAN_OPEN | FAN_EVENT_ON_CHILD, AT_FDCWD, file.c_str()), -1);
+				CHK(buflen = read(fan, buf, sizeof(buf)), -1);
+				metadata = (struct fanotify_event_metadata*)&buf;
+				while(FAN_EVENT_OK(metadata, buflen)) {
+					if (metadata->mask & FAN_Q_OVERFLOW) {
+						// FIXME: Should we just exit if this happens???
+						cout << "Queue overflow!" << endl;
+						continue;
+				  	}
+				  	fdpath = "/proc/self/fd/" + string(metadata->fd);
+				  	CHK(linklen = readlink(fdpath, path, sizeof(path) - 1), -1);
+				  	path[linklen] = '\0';
+				  	// TODO: convert pid to application name
+				  	pid_t pid = (pid_t)(metadata->pid);
+				  	cout << path << " opened by application " << application(pid);
+				  	if (verbose) {
+				  		cout << " (process " << pid << ")";
+				  	} 
+				  	cout << endl;
+				  	close(metadata->fd);
+				  	metadata = FAN_EVENT_NEXT(metadata, buflen);
+				}
+			}
 		}
 	}
-}
+
+	// returns application name from pid
+	string application(pid_t pid) {
+		// TODO
+		return "EECS_388_ROX_MY_SOX";
+	}
+
+	void parse_command_line(int argc, char *argv[]) {
+		static struct option longopts[] = {
+			{ "mode", 			required_argument, 	nullptr, 	'm'}
+			{ "verbose",		no_argument,		nullptr,	'v' },
+			{ "files",			required_argument,	nullptr,	'f' },
+			{ nullptr,			0,					nullptr,	'\0' }
+		};
+
+		int idx = 0;
+		char c;
+		while ((c = char((getopt_long(argc, argv, "mvf:", longopts, &idx)))) != -1) {
+			switch (c) {
+			case 'm': 
+				mode = optarg;
+				if (mode != "SNAPSHOT" && mode != "REALTIME") {
+					cerr << "Mode must be one of SNAPSHOT or REALTIME" << endl;
+					exit(1);
+				}
+			case 'v':
+				verbose = true;
+				break;
+			case 'f':
+				// TODO: make this work
+				files_to_track.push_back(optarg);
+				break;
+			}
+		}
+	}
+};
 
 int main(int argc, char** argv) {
-  vector<string> files_to_track;
-  parse_command_line(argc, argv, files_to_track);
-  Solution s;//TODO: pass this what it needs from command line
-  s.run();
-  return 0;
+	Solution s(argc, argv);
+	s.run();
+	return 0;
 }
