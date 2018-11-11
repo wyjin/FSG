@@ -7,7 +7,6 @@ def main(argv):
     path = argv[0]
     for filename in os.listdir(path):
         with open(filename, 'r') as openfile:
-            print("file", filename, "is accessed.")
             time.sleep(5)
 
 if __name__ == '__main__':
