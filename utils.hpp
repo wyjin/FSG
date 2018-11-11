@@ -1,11 +1,3 @@
-//
-//  utils.hpp
-//  FSG
-//
-//  Created by W.Jin on 11/10/18.
-//  Copyright © 2018 W.Jin. All rights reserved.
-//
-
 #ifndef utils_hpp
 #define utils_hpp
 
