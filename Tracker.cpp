@@ -57,19 +57,23 @@ private:
         char buf[4096];
         string fdpath;
         char path[PATH_MAX + 1];
-        ssize_t buflen, linklen;
-        struct fanotify_event_metadata *metadata;
+        struct fanotify_event_metadata* metadata;
         CHK(fan = fanotify_init(FAN_CLASS_NOTIF, O_RDONLY), -1);
+        // makes it track everything
+        if (files_to_track.empty()) {
+            files_to_track.push_back("/");
+        }
         while(true) {
-            for (string & file : files_to_track) {
-                auto mark = fanotify_mark(
+            for (const string& file : files_to_track) {
+                int mark = fanotify_mark(
                     fan,
                     FAN_MARK_ADD | FAN_MARK_MOUNT,
                     FAN_OPEN | FAN_EVENT_ON_CHILD,
                     AT_FDCWD,
                     file.c_str());
                 CHK(mark, -1);
-                CHK(buflen = read(fan, buf, sizeof(buf)), -1);
+                ssize_t buflen = read(fan, buf, sizeof(buf));
+                CHK(buflen, -1);
                 metadata = (struct fanotify_event_metadata*)&buf;
                 while(FAN_EVENT_OK(metadata, buflen)) {
                     if (metadata->mask & FAN_Q_OVERFLOW) {
@@ -78,17 +82,11 @@ private:
                         continue;
                     }
                     fdpath = "/proc/self/fd/" + to_string(metadata->fd);
-                    CHK(linklen = readlink(
-                        fdpath.c_str(), path, sizeof(path) - 1), -1);
+                    ssize_t linklen = 
+                        readlink(fdpath.c_str(), path, sizeof(path) - 1);
+                    CHK(linklen, -1);
                     path[linklen] = '\0';
-                    pid_t pid = (pid_t)(metadata->pid);
-                    cout << path
-                         << " opened by application "
-                         << application(pid);
-                    if (verbose) {
-                        cout << " (process " << pid << ")";
-                    }
-                    cout << endl;
+                    print_access(string(path), pid_t(metadata->pid));
                     close(metadata->fd);
                     metadata = FAN_EVENT_NEXT(metadata, buflen);
                 }
@@ -96,12 +94,20 @@ private:
         }
     }
 
+    void print_access(const string& path, pid_t pid) {
+        cout << path 
+             << " opened by application " 
+             << application(pid);
+        if (verbose) {
+            cout << " (process " << pid << ")";
+        }
+        cout << endl;
+    }
+
     // returns application name from pid
     string application(pid_t pid) {
-        // TODO
-	  vector<string> names = trace_pid(pid);
-	  return print_info(names[names.size() - 1]);
-	}
+        return print_info(trace_pid(pid).back());
+    }
 
     void parse_command_line(int argc, char **argv) {
         string usage = "Tracker [options] [args]";
