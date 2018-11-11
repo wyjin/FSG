@@ -25,9 +25,6 @@ vector<string> trace_pid(pid_t pid) {
     }
     pclose(fp);
     vector<string> proc_names = split(result, "---");
-    for (const string& proc : proc_names) {
-        cout << proc << endl;
-    }
     return proc_names;
 }
 
