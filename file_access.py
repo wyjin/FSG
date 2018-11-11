@@ -6,8 +6,9 @@ def main(argv):
         sys.exit(1)
     path = argv[0]
     for filename in os.listdir(path):
-        with open(filename, 'r') as openfile:
-            time.sleep(5)
+        if not os.path.isdir(filename):
+            with open(filename, 'r') as openfile:
+                time.sleep(5)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
