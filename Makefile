@@ -203,7 +203,7 @@ help:
 
 # tests
 
-Tracker.o: Tracker.cpp 
+Tracker.o: Tracker.cpp utils_snapshot.hpp utils_snapshot.cpp utils_real_time.hpp utils_real_time.cpp
 
 ######################
 # TODO (end) #

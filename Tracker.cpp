@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <array>
 #include <getopt.h>
 #include <fcntl.h>
 #include <limits.h>
@@ -9,6 +8,7 @@
 #include <sys/fanotify.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include "utils_snapshot.hpp"
 
 #define CHK(expr, errcode) if((expr)==errcode) perror(#expr), exit(EXIT_FAILURE)
 
@@ -48,25 +48,7 @@ private:
 			}
 			command += file + " ";
 		}
-		//redirects stderr to stdout
-		command += "2>&1";
-		array<char, 128> buffer;
-		string result;
-		FILE* pipe = popen(command.c_str(), "r");
-		if (!pipe) {
-		    cerr << "Unknown error, exiting." << endl;
-		    exit(1);
-		}
-		while (fgets(buffer.data(), 128, pipe) != NULL) {
-		    result += buffer.data();
-		}
-		auto returnCode = pclose(pipe);
-		if (returnCode != 0) {
-			cerr << "Exiting with status " << returnCode << endl;
-			cerr << "Result from lsof: " << result << endl;
-			exit(returnCode);
-		}
-		cout << result << endl;
+		call_lsof(command);
 	}
 
 	void get_realtime() {
@@ -84,7 +66,7 @@ private:
 					FAN_MARK_ADD | FAN_MARK_MOUNT, 
 					FAN_OPEN | FAN_EVENT_ON_CHILD, 
 					AT_FDCWD, 
-					file.c_str())
+					file.c_str());
 				CHK(mark, -1);
 				CHK(buflen = read(fan, buf, sizeof(buf)), -1);
 				metadata = (struct fanotify_event_metadata*)&buf;
