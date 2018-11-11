@@ -40,7 +40,7 @@ std::string trace_pid(uint32_t pid) {
     return proc_name;
 }
 
-std::vector<std::string> split(const std::string& str, const std::string & delim) {
+std::vector<std::string> split(const std::string& str, const std::string delim) {
     std::size_t current, previous = 0;
     current = str.find(delim);
     cont = std::vector<std::string>;
