@@ -5,11 +5,11 @@ def main(argv):
         print('Usage: file_access.py <directory/to/access>')
         sys.exit(1)
     path = argv[0]
-    for filename in os.listdir(path):
+    for filename in sorted(os.listdir(path)):
         if not os.path.isdir(filename):
             with open(path + '/' + filename, 'r') as openfile:
                 print(filename)
-                time.sleep(5)
+                time.sleep(500)
 
 if __name__ == '__main__':
     main(sys.argv[1:])

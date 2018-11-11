@@ -61,14 +61,16 @@ private:
         int fan = fanotify_init(FAN_CLASS_NOTIF, O_RDONLY);
         CHK(fan, -1);
         // makes it track everything
+	//
         if (files_to_track.empty()) {
-            files_to_track.push_back("/");
+	    files_to_track.push_back("/");
         }
         while(true) {
             for (const string& file : files_to_track) {
+		cout << file << endl;
                 int mark = fanotify_mark(
                     fan,
-                    FAN_MARK_ADD | FAN_MARK_MOUNT,
+                    FAN_MARK_ADD,
                     FAN_OPEN | FAN_EVENT_ON_CHILD,
                     AT_FDCWD,
                     file.c_str());
