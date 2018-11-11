@@ -9,6 +9,7 @@
 #include <sys/fanotify.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <string>
 
 /*
  possible problems here:
@@ -19,6 +20,6 @@
 
 void pid2name(uint32_t pid, char* name_buf);
 
-void trace_pid(uint32_t pid);
+std::string trace_pid(uint32_t pid);
 
 #endif /* utils_hpp */
