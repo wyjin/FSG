@@ -13,6 +13,6 @@
 std::vector<std::string> trace_pid(pid_t pid);
 
 std::vector<std::string> split(
-	const std::string& str, const std::string& delim);
+    const std::string& str, const std::string& delim);
 
 std::string print_info(const std::string& proc_info);
