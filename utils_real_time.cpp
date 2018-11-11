@@ -33,14 +33,14 @@ std::vector<std::string> trace_pid(uint32_t pid) {
         result += buf;
     }
     pclose(fp);
-    std::vector<std::string> proc_name = split(result, std::string("---"));
+    std::vector<std::string> proc_name = split(result, "---");
     for (auto&& i: proc_name) {
         std::cout << i << std::endl;
     }
     return proc_name;
 }
 
-std::vector<std::string> split(const std::string& str, const std::string delim) {
+std::vector<std::string> split(const std::string& str, const std::string &delim) {
     std::size_t current, previous = 0;
     current = str.find(delim);
     std::vector<std::string> cont;
