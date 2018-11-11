@@ -1,0 +1,16 @@
+STYLE GUIDELINES:
+
+1) Use #pragma once instead of include guards
+2) Braces should be done like this: 
+	if (x == y) {
+		//do stuff
+	}
+	else {
+		//do other crap
+	}
+3) We use 4 spaces for indentation
+4) In header files, do not use namespace std, but in .cpp files do
+5) Avoid redundant includes, and only include what you absolutely need in each file
+6) pointers and references should be written consistently, so lets do this:
+	char* ptr (not char * ptr or char *ptr)
+	string& str (not string & str or string &str)

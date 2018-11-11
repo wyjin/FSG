@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include "utils_snapshot.hpp"
+#include "utils_real_time.hpp"
 
 #define CHK(expr, errcode) if((expr)==errcode) perror(#expr), exit(EXIT_FAILURE)
 
@@ -62,10 +63,10 @@ private:
         while(true) {
             for (string & file : files_to_track) {
                 auto mark = fanotify_mark(
-                    fan, 
-                    FAN_MARK_ADD | FAN_MARK_MOUNT, 
-                    FAN_OPEN | FAN_EVENT_ON_CHILD, 
-                    AT_FDCWD, 
+                    fan,
+                    FAN_MARK_ADD | FAN_MARK_MOUNT,
+                    FAN_OPEN | FAN_EVENT_ON_CHILD,
+                    AT_FDCWD,
                     file.c_str());
                 CHK(mark, -1);
                 CHK(buflen = read(fan, buf, sizeof(buf)), -1);
@@ -81,12 +82,12 @@ private:
                         fdpath.c_str(), path, sizeof(path) - 1), -1);
                     path[linklen] = '\0';
                     pid_t pid = (pid_t)(metadata->pid);
-                    cout << path 
-                         << " opened by application " 
+                    cout << path
+                         << " opened by application "
                          << application(pid);
                     if (verbose) {
                         cout << " (process " << pid << ")";
-                    } 
+                    }
                     cout << endl;
                     close(metadata->fd);
                     metadata = FAN_EVENT_NEXT(metadata, buflen);
@@ -98,12 +99,13 @@ private:
     // returns application name from pid
     string application(pid_t pid) {
         // TODO
-        return "Application of pid " + to_string(pid);
-    }
+	  vector<string> names = trace_pid(pid);
+	  return print_info(names[names.size() - 1]);
+	}
 
     void parse_command_line(int argc, char **argv) {
         string usage = "Tracker [options] [args]";
-        string description = 
+        string description =
             "This is a file system access tracker, "
             "which provides information on which "
             "applications are accessing files in "
