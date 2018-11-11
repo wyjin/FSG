@@ -27,6 +27,6 @@
 
 void pid2name(uint32_t pid, char* name_buf);
 
-void trace_pid(uintse_t pid, char* name_buf);
+void trace_pid(uintse_t pid);
 
 #endif /* utils_hpp */
