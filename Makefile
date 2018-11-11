@@ -202,8 +202,9 @@ help:
 # ADD YOUR OWN DEPENDENCIES HERE
 
 # tests
-
-Tracker.o: Tracker.cpp utils_snapshot.hpp utils_snapshot.cpp utils_real_time.hpp utils_real_time.cpp
+utils_snapshot.o: utils_snapshot.hpp utils_snapshot.cpp
+utils_real_time.o: utils_real_time.hpp utils_real_time.cpp
+Tracker.o: Tracker.cpp utils_snapshot.o utils_real_time.o
 
 ######################
 # TODO (end) #
