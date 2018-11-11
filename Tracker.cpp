@@ -53,12 +53,13 @@ private:
     }
 
     void get_realtime() {
-        int fan;
         char buf[4096];
         string fdpath;
         char path[PATH_MAX + 1];
         struct fanotify_event_metadata* metadata;
-        CHK(fan = fanotify_init(FAN_CLASS_NOTIF, O_RDONLY), -1);
+
+        int fan = fanotify_init(FAN_CLASS_NOTIF, O_RDONLY);
+        CHK(fan, -1);
         // makes it track everything
         if (files_to_track.empty()) {
             files_to_track.push_back("/");
