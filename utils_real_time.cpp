@@ -33,9 +33,20 @@ std::string trace_pid(uint32_t pid) {
         result += buf;
     }
     pclose(fp);
-    return result;
+    std::vector<std::string> proc_name = split(result, "---");
+    for (auto&& i: proc_name) {
+        std::cout << i << std::endl;
+    }
+    return proc_name;
 }
 
-std::vector<std::string> proc_names(const string & output) {
-    
+std::vector<std::string> split(const std::string& str, const std::string & delim) {
+    std::size_t current, previous = 0;
+    current = str.find(delim);
+    while (current != std::string::npos) {
+        cont.push_back(str.substr(previous, current - previous));
+        previous = current + 1;
+        current = str.find(delim, previous);
+    }
+    cont.push_back(str.substr(previous, current - previous));
 }
