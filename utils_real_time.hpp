@@ -10,19 +10,9 @@
  2. Issues when getting process names: directory does not exist.
  */
 
-<<<<<<< HEAD
-std::vector<std::string> trace_pid(uint32_t pid);
-
-std::vector<std::string> split(const std::string& str, const std::string &delim);
-
-std::string print_info(const std::string &proc_info);
-
-/* utils_hpp */
-=======
 std::vector<std::string> trace_pid(pid_t pid);
 
 std::vector<std::string> split(
     const std::string& str, const std::string& delim);
 
-std::string print_info(const std::string& proc_info);
->>>>>>> f8c9c61cf65f31472f1df232fefc84b29697245a
+std::string format_info(const std::string& proc_info);

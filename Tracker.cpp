@@ -107,7 +107,7 @@ private:
 
     // returns application name from pid
     string application(pid_t pid) {
-        return print_info(trace_pid(pid).back());
+        return format_info(trace_pid(pid).back());
     }
 
     void parse_command_line(int argc, char **argv) {
