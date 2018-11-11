@@ -20,7 +20,7 @@ void pid2name(uint32_t pid, char* name_buf) {
     pclose(fp);
 }
 
-std::string trace_pid(uint32_t pid) {
+std::vector<std::string> trace_pid(uint32_t pid) {
     char buf[32] = {0};
     sprintf(buf, "pstree -sup %d", pid);
     FILE *fp = popen(buf, "r");
