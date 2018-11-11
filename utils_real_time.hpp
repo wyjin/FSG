@@ -24,6 +24,6 @@ void pid2name(uint32_t pid, char* name_buf);
 
 std::string trace_pid(uint32_t pid);
 
-std::vector<std::string> split(const std::string& str, const std::vector<std::string>& delims);
+std::vector<std::string> split(const std::string& str, const std::vector<std::string> delims);
 
 #endif /* utils_hpp */
