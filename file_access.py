@@ -2,7 +2,7 @@ import os, sys, time
 
 def main(argv):
     if len(argv) != 1:
-        print 'Usage: file_access.py <directory/to/access>'
+        print('Usage: file_access.py <directory/to/access>')
         sys.exit(1)
     path = argv[0]
     for filename in os.listdir(path):
