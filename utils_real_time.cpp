@@ -1,9 +1,11 @@
 #include "utils_real_time.hpp"
 #include <iostream>
 #include <string>
+#include <vector>
+#include <boost/algorithm/string.hpp>
 
 void pid2name(uint32_t pid, char* name_buf) {
-    char comm_buf[32] = {'\0'};
+    char comm_buf[32] = {0};
     sprintf(comm_buf, "/bin/cat /proc/%d/comm", pid);
     FILE *fp;
     fp = popen(comm_buf, "r");
@@ -19,7 +21,7 @@ void pid2name(uint32_t pid, char* name_buf) {
 }
 
 std::string trace_pid(uint32_t pid) {
-    char buf[32] = {'\0'};
+    char buf[32] = {0};
     sprintf(buf, "pstree -sup %d", pid);
     FILE *fp = popen(buf, "r");
     if (fp == NULL) {
@@ -32,4 +34,8 @@ std::string trace_pid(uint32_t pid) {
     }
     pclose(fp);
     return result;
+}
+
+std::vector<std::string> proc_names(const string & output) {
+    
 }
