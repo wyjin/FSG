@@ -1,4 +1,6 @@
 #include "utils.hpp"
+#include <iostream>
+#include <string>
 
 void pid2name(uint32_t pid, char* name_buf) {
     char comm_buf[32] = {'\0'};
@@ -16,7 +18,7 @@ void pid2name(uint32_t pid, char* name_buf) {
     pclose(fp);
 }
 
-void trace_pid(uint32_t pid) {
+std::string trace_pid(uint32_t pid) {
     char buf[32] = {'\0'};
     sprintf(buf, "pstree -sup %d", pid);
     FILE *fp = popen(buf, "r");
@@ -28,6 +30,6 @@ void trace_pid(uint32_t pid) {
     while (fgets(buf, sizeof(buf)-1, fp)) {
         result += buf;
     }
-    std::cout << result << std::endl;
     pclose(fp);
+    return result;
 }
