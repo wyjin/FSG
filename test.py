@@ -5,8 +5,8 @@ def main():
         print('Usage: test.py [r/s] <directory/to/access>')
         sys.exit(1)
     mode = argv[1]
-    if mode not in ['s', 'm']:
-        print("Mode must be one of s or m")
+    if mode not in ['s', 'r']:
+        print("Mode must be one of s or r")
         sys.exit(1)
     path = argv[2]
     if not os.path.isdir(path):
