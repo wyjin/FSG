@@ -1,11 +1,3 @@
-//
-//  utils.cpp
-//  FSG
-//
-//  Created by W.Jin on 11/10/18.
-//  Copyright © 2018 W.Jin. All rights reserved.
-//
-
 #include "utils.hpp"
 
 void pid2name(uint32_t pid, char* name_buf) {
