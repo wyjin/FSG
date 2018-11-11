@@ -42,11 +42,12 @@ std::vector<std::string> trace_pid(uint32_t pid) {
 
 std::vector<std::string> split(const std::string& str, const std::string &delim) {
     std::size_t current, previous = 0;
+    std::size_t pattern_len = delim.length();
     current = str.find(delim);
     std::vector<std::string> cont;
     while (current != std::string::npos) {
         cont.push_back(str.substr(previous, current - previous));
-        previous = current + 1;
+        previous = current + pattern_len;
         current = str.find(delim, previous);
     }
     cont.push_back(str.substr(previous, current - previous));
