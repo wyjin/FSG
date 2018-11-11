@@ -1,17 +1,7 @@
-#ifndef utils_hpp
-#define utils_hpp
+#pragma once
 
-#include <fcntl.h>
-#include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/fanotify.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <string>
 #include <vector>
-#include <boost/algorithm/string.hpp>
 
 /*
  possible problems here:
@@ -20,10 +10,10 @@
  2. Issues when getting process names: directory does not exist.
  */
 
-void pid2name(uint32_t pid, char* name_buf);
-
 std::vector<std::string> trace_pid(uint32_t pid);
 
 std::vector<std::string> split(const std::string& str, const std::string &delim);
 
-#endif /* utils_hpp */
+std::string print_info(const std::string &proc_info);
+
+/* utils_hpp */
