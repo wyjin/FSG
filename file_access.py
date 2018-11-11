@@ -7,7 +7,7 @@ def main(argv):
     path = argv[0]
     for filename in os.listdir(path):
         if not os.path.isdir(filename):
-            with open(path + filename, 'r') as openfile:
+            with open(path + '/' + filename, 'r') as openfile:
                 time.sleep(5)
 
 if __name__ == '__main__':
