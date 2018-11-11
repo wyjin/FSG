@@ -33,7 +33,7 @@ std::vector<std::string> trace_pid(uint32_t pid) {
         result += buf;
     }
     pclose(fp);
-    std::vector<std::string> proc_name = split(result, "---");
+    std::vector<std::string> proc_name = split(result, std::string("---"));
     for (auto&& i: proc_name) {
         std::cout << i << std::endl;
     }
