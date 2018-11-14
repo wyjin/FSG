@@ -12,14 +12,19 @@ def main():
     if not os.path.isdir(path):
         print("Only test on directories")
         sys.exit(1)
-    for filename in sorted(os.listdir(path)):
-        if not os.path.isdir(filename):
-            with open(path + '/' + filename, 'r') as openfile:
+
+    if mode == 'r':
+        while True:
+            for filename in sorted(os.listdir(path)):
+                if not os.path.isdir(filename):
+                    with open(path + '/' + filename, 'r') as openedfile: 
+                        print(filename)
+    else:
+        for filename in sorted(os.listdir(path)):
+            if not os.path.isdir(filename):
+                open(path + '/' + filename, 'r')  # memory problem but who cares?
                 print(filename)
-                if mode == 'r':
-                    time.sleep(5)
-                else:
-                    time.sleep(500)
+        time.sleep(1000)
 
 if __name__ == '__main__':
     main()
