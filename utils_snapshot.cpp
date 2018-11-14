@@ -24,5 +24,4 @@ void call_lsof(const string& command) {
 //		cerr << "Result from lsof: " << result << endl;
 //		exit(returnCode);
 //	}
-	cout << result << endl;
 }
