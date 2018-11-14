@@ -4,11 +4,11 @@ def main():
     if len(sys.argv) != 3:
         print('Usage: test.py [r/s] <directory/to/access>')
         sys.exit(1)
-    mode = argv[1]
+    mode = sys.argv[1]
     if mode not in ['s', 'r']:
         print("Mode must be one of s or r")
         sys.exit(1)
-    path = argv[2]
+    path = sys.argv[2]
     if not os.path.isdir(path):
         print("Only test on directories")
         sys.exit(1)
