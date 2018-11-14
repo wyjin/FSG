@@ -14,7 +14,6 @@ def main():
             if not os.path.isdir(filename):
                 with open(path + '/' + filename, 'r') as openedfile:
                     time.sleep(1)
-                    pass
 
 if __name__ == '__main__':
     main()
