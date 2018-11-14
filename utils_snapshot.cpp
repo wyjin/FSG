@@ -16,11 +16,13 @@ void call_lsof(const string& command) {
 	while (fgets(buffer.data(), 128, pipe) != NULL) {
 	    result += buffer.data();
 	}
-	auto returnCode = pclose(pipe);
-	if (returnCode != 0) {
-		cerr << "Exiting with status " << returnCode << endl;
-		cerr << "Result from lsof: " << result << endl;
-		exit(returnCode);
-	}
+	//auto returnCode = 
+	pclose(pipe);
+	cout << result << endl;
+//	if (returnCode != 0) {
+//		cerr << "Exiting with status " << returnCode << endl;
+//		cerr << "Result from lsof: " << result << endl;
+//		exit(returnCode);
+//	}
 	cout << result << endl;
 }

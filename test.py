@@ -18,12 +18,12 @@ def main():
             for filename in sorted(os.listdir(path)):
                 if not os.path.isdir(filename):
                     with open(path + '/' + filename, 'r') as openedfile: 
-                        print(filename)
+                        pass
     else:
         for filename in sorted(os.listdir(path)):
             if not os.path.isdir(filename):
                 open(path + '/' + filename, 'r')  # memory problem but who cares?
-                print(filename)
+                print(filename, " is opened")
         time.sleep(1000)
 
 if __name__ == '__main__':
