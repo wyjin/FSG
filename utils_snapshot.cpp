@@ -26,7 +26,6 @@ void call_lsof(const string& command) {
 		//cout << result << endl;
 		vector<string> stuff = split(result, "\n");
 		for (uint i = 0; i + 3 < stuff.size() - 1; i += 4) {
-			// cout << stuff[i] << " " << stuff[i + 1] << " " << stuff[i + 3] << endl;
 			string pid = stuff[i].substr(1);
 			string application = stuff[i + 1].substr(1);
 			string path = stuff[i + 3].substr(1);

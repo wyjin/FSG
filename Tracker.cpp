@@ -41,7 +41,7 @@ private:
     }
 
     void get_snapshot() {
-        string command = "lsof -F cn -- ";
+        string command = "lsof -F cnf -- ";
         for (string & file : files_to_track) {
             if (!path_exists(file)) {
                 cerr << file << " is not a valid file." << endl;
