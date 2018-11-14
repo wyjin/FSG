@@ -18,7 +18,12 @@ void call_lsof(const string& command) {
 	}
 	//auto returnCode = 
 	pclose(pipe);
-	cout << result << endl;
+	if (result.empty()) {
+		cout << "None of the files specified are currently being accessed." << endl;
+	}
+	else {
+		cout << result << endl;
+	}
 //	if (returnCode != 0) {
 //		cerr << "Exiting with status " << returnCode << endl;
 //		cerr << "Result from lsof: " << result << endl;

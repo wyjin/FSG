@@ -22,9 +22,11 @@ def main():
     else:
         for filename in sorted(os.listdir(path)):
             if not os.path.isdir(filename):
-                open(path + '/' + filename, 'r')  # memory problem but who cares?
-                print(filename, " is opened")
-        time.sleep(1000)
+                # you need to write with open() for it to work, so we can prolly just 
+                # combine r and s into one mode and sleep for like a second in a while(True) loop
+                with open(path + '/' + filename, 'r') as openedfile:  # memory problem but who cares?
+                    print(filename, " is opened")
+                    time.sleep(5)
 
 if __name__ == '__main__':
     main()
