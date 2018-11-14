@@ -49,7 +49,28 @@ private:
             }
             command += file + " ";
         }
-        call_lsof(command);
+        string result = call_lsof(command);
+        if (result.empty()) {
+            cout << "None of the files specified are currently being accessed." << endl;
+        }
+        else {
+            vector<string> lines = split(result, "\n");
+            lines.pop_back(); // get rid of trailing newline
+            for (uint i = 0; i + 3 < lines.size(); i += 4) {
+                pid_t pid = pid_t(stoi(lines[i].substr(1)));
+                string application = lines[i + 1].substr(1);
+                string path = lines[i + 3].substr(1);
+                cout << format_output(path, application, pid) << endl;
+            }
+        }
+    }
+
+    string format_output(const string& path, const string& app, pid_t pid) {
+        string result = path + " opened by application " + app;
+        if (verbose) {
+            result += " (process " + to_string(pid) + ")";
+        }
+        return result;
     }
 
     void get_realtime() {
@@ -60,7 +81,7 @@ private:
 
         int fan = fanotify_init(FAN_CLASS_NOTIF, O_RDONLY);
         CHK(fan, -1);
-        // makes it track everything
+        // makes it track everything if user specified no files
         if (files_to_track.empty()) {
             files_to_track.push_back("/");
         }
@@ -87,22 +108,14 @@ private:
                         readlink(fdpath.c_str(), path, sizeof(path) - 1);
                     CHK(linklen, -1);
                     path[linklen] = '\0';
-                    print_access(string(path), pid_t(metadata->pid));
+                    pid_t pid = pid_t(metadata->pid);
+                    cout << format_output(
+                        string(path), application(pid), pid) << endl;
                     close(metadata->fd);
                     metadata = FAN_EVENT_NEXT(metadata, buflen);
                 }
             }
         }
-    }
-
-    void print_access(const string& path, pid_t pid) {
-        cout << path 
-             << " opened by application " 
-             << application(pid);
-        if (verbose) {
-            cout << " (process " << pid << ")";
-        }
-        cout << endl;
     }
 
     // returns application name from pid
