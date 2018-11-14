@@ -45,20 +45,21 @@ vector<string> split(const string& str, const string& delim) {
 string format_info(const string& proc_info) {
     // the info string should look like proc_name(pid, user)
     size_t start_paren = proc_info.find('(');
-    size_t end_paren = proc_info.find(')');
+    //size_t end_paren = proc_info.find(')');
     string proc_name = proc_info.substr(0, start_paren);
-    string info_str = "process \"" + proc_name + "\"";
-    string proc_data = 
-        proc_info.substr(start_paren + 1, end_paren - start_paren - 1);
-    size_t pos = proc_data.find(',');
-    if (pos != string::npos) {
-        string pid = proc_data.substr(0, pos);
-        string user = proc_data.substr(pos + 1, proc_data.length() );
-        info_str += 
-            " (pid: " + string(pid) + ")" + " started by user: " + user;
-    } 
-    else {
-        info_str += " (pid: " + string(proc_data) + ")";
-    }
+    string info_str = proc_name; 
+    //string info_str = "process \"" + proc_name + "\"";
+//    string proc_data = 
+//        proc_info.substr(start_paren + 1, end_paren - start_paren - 1);
+//    size_t pos = proc_data.find(',');
+//    if (pos != string::npos) {
+//        string pid = proc_data.substr(0, pos);
+//        string user = proc_data.substr(pos + 1, proc_data.length() );
+//        info_str += 
+//            " (pid: " + string(pid) + ")" + " started by user: " + user;
+//    } 
+//    else {
+//        info_str += " (pid: " + string(proc_data) + ")";
+//    }
     return info_str;
 }

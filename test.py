@@ -16,7 +16,7 @@ def main():
         if not os.path.isdir(filename):
             with open(path + '/' + filename, 'r') as openfile:
                 print(filename)
-                if mode == 's':
+                if mode == 'r':
                     time.sleep(5)
                 else:
                     time.sleep(500)
