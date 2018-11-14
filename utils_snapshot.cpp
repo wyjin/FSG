@@ -1,4 +1,5 @@
 #include "utils_snapshot.hpp"
+#include "utils_real_time.hpp"
 #include <iostream>
 #include <array>
 
@@ -22,7 +23,16 @@ void call_lsof(const string& command) {
 		cout << "None of the files specified are currently being accessed." << endl;
 	}
 	else {
-		cout << result << endl;
+		//cout << result << endl;
+		vector<string> stuff = split(result, "\n");
+		for (uint i = 0; i + 2 < stuff.size() - 1; i += 3) {
+			//cout << stuff[i] << " " << stuff[i + 1] << " " << stuff[i + 2] << endl;
+			string pid = stuff[i].substr(1);
+			string application = stuff[i + 1].substr(1);
+			string path = stuff[i + 2].substr(1);
+			cout << path << " opened by application " << application << " pid (" << pid << ")" << endl;
+		}
+		//cout << result << endl;
 	}
 //	if (returnCode != 0) {
 //		cerr << "Exiting with status " << returnCode << endl;
