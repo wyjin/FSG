@@ -51,16 +51,30 @@ private:
         }
         string result = call_lsof(command);
         if (result.empty()) {
-            cout << "None of the files specified are currently being accessed." << endl;
+            cout << "None of the files are being accessed." << endl;
         }
         else {
             vector<string> lines = split(result, "\n");
             lines.pop_back(); // get rid of trailing newline
-            for (uint i = 0; i + 3 < lines.size(); i += 4) {
-                pid_t pid = pid_t(stoi(lines[i].substr(1)));
-                string application = lines[i + 1].substr(1);
-                string path = lines[i + 3].substr(1);
-                cout << format_output(path, application, pid) << endl;
+            for (uint i = 0; i < lines.size();) {
+                if (lines[i][0] == 'p') {
+                    pid_t pid = pid_t(stoi(lines[i].substr(1)));
+                    string app = lines[i + 1].substr(1);
+                    uint k = i + 2;
+                    vector<string> paths_for_this_process;
+                    while(k < lines.size() && lines[k][0] != 'p') {
+                        if (lines[k][0] == 'n') {
+                            paths_for_this_process.push_back(
+                                lines[k].substr(1));
+                        }
+                        ++k;
+                    }
+                    i = k;
+                    for (uint r = 0; r < paths_for_this_process.size(); ++r) {
+                        cout << format_output(
+                            paths_for_this_process[r], app, pid) << endl;
+                    }
+                }
             }
         }
     }
