@@ -54,26 +54,30 @@ private:
             cout << "None of the files are being accessed." << endl;
         }
         else {
-            vector<string> lines = split(result, "\n");
-            lines.pop_back(); // get rid of trailing newline
-            for (uint i = 0; i < lines.size();) {
-                if (lines[i][0] == 'p') {
-                    pid_t pid = pid_t(stoi(lines[i].substr(1)));
-                    string app = lines[i + 1].substr(1);
-                    uint k = i + 2;
-                    vector<string> paths_for_this_process;
-                    while(k < lines.size() && lines[k][0] != 'p') {
-                        if (lines[k][0] == 'n') {
-                            paths_for_this_process.push_back(
-                                lines[k].substr(1));
-                        }
-                        ++k;
+            print_formated_snapshot_result(result);
+        }
+    }
+
+    void print_formatted_snapshot_result(const string& result) {
+        vector<string> lines = split(result, "\n");
+        lines.pop_back(); // get rid of trailing newline
+        for (uint i = 0; i < lines.size();) {
+            if (lines[i][0] == 'p') {
+                pid_t pid = pid_t(stoi(lines[i].substr(1)));
+                string app = lines[i + 1].substr(1);
+                uint k = i + 2;
+                vector<string> paths_for_this_process;
+                while(k < lines.size() && lines[k][0] != 'p') {
+                    if (lines[k][0] == 'n') {
+                        paths_for_this_process.push_back(
+                            lines[k].substr(1));
                     }
-                    i = k;
-                    for (uint r = 0; r < paths_for_this_process.size(); ++r) {
-                        cout << format_output(
-                            paths_for_this_process[r], app, pid) << endl;
-                    }
+                    ++k;
+                }
+                i = k;
+                for (uint r = 0; r < paths_for_this_process.size(); ++r) {
+                    cout << format_output(
+                        paths_for_this_process[r], app, pid) << endl;
                 }
             }
         }
