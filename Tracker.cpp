@@ -1,20 +1,14 @@
-#include <cstdio>
-#include <iostream>
-#include <fstream>
-#include <ostream>
-#include <vector>
-#include <iostream>
-#include <iomanip>
 #include <ctime>
-#include <sstream>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <vector>
 
 #include <getopt.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <unistd.h>
 #include <sys/fanotify.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 
 #include "utils_snapshot.hpp"
 #include "utils_real_time.hpp"
