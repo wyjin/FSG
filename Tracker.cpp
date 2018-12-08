@@ -1,6 +1,13 @@
+#include <cstdio>
 #include <iostream>
 #include <fstream>
+#include <ostream>
 #include <vector>
+#include <iostream>
+#include <iomanip>
+#include <ctime>
+#include <sstream>
+
 #include <getopt.h>
 #include <fcntl.h>
 #include <limits.h>
@@ -8,6 +15,7 @@
 #include <sys/fanotify.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+
 #include "utils_snapshot.hpp"
 #include "utils_real_time.hpp"
 
@@ -18,14 +26,23 @@ using namespace std;
 class Solution {
 private:
     bool verbose;
+    bool log;
+    string logfile;
     string mode;
     vector<string> files_to_track;
 public:
-    Solution(int argc, char** argv) : verbose(false) {
+    Solution(int argc, char** argv) : verbose(false), log(false) {
         parse_command_line(argc, argv);
     }
 
     void run() {
+        if (log) {
+            set_logfile_name();
+            if (!freopen(logfile.c_str(), "w", stdout)) {
+                cerr << "Failed to open logfile, exiting." << endl;
+                exit(1);
+            }
+        }
         if (mode == "SNAPSHOT") {
             get_snapshot();
         }
@@ -35,6 +52,31 @@ public:
 
     }
 private:
+    // if user failed to provide a file, this will set it
+    // to LOGFILE_date/time
+    void set_logfile_name() {
+        if (logfile.empty()) {
+            logfile = "LOGFILE";
+        }
+        logfile = "logs/" + logfile + "_" + get_current_time();
+    }
+
+    string get_current_time() {
+        auto t = time(nullptr);
+        auto tm = localtime(&t);
+        char buf[50];
+        // YYYY-MM-DD-HH-MM-SS
+        sprintf(buf, 
+                "%.4d-%.2d-%.2d-%.2d-%.2d-%.2d", 
+                1901 + tm->tm_year, 
+                tm->tm_mon, 
+                tm->tm_mday, 
+                tm->tm_hour, 
+                tm->tm_min, 
+                tm->tm_sec);
+        return string(buf);
+    }
+
     bool path_exists(const string& path) {
         ifstream f(path.c_str());
         return f.good();
@@ -54,7 +96,7 @@ private:
             cout << "None of the files are being accessed." << endl;
         }
         else {
-            print_formated_snapshot_result(result);
+            print_formatted_snapshot_result(result);
         }
     }
 
@@ -153,24 +195,32 @@ private:
             exit(1);
         }
         static struct option longopts[] = {
-            { "verbose",    optional_argument,  nullptr,    'v' },
-            { "mode",       required_argument,  nullptr,    'm' },
-            { "help",       no_argument,        nullptr,    'h' },
-            { nullptr,      0,                  nullptr,    '\0' }
+            { "verbose",    no_argument,        nullptr,    'v'     },
+            { "log",        optional_argument,  nullptr,    'l'     },
+            { "mode",       required_argument,  nullptr,    'm'     },
+            { "help",       no_argument,        nullptr,    'h'     },
+            { nullptr,      0,                  nullptr,    '\0'    }
         };
         int idx = 0;
         char c;
-        while ((c = char((getopt_long(argc, argv, "vhm:", longopts, &idx)))) != -1) {
+        string temp;
+        while ((c = char((getopt_long(argc, argv, "vl::hm:", longopts, &idx)))) != -1) {
             switch (c) {
+            case 'v':
+                verbose = true;
+                break;
+            case 'l':
+                log = true;
+                if (optarg) {
+                    logfile = string(optarg).substr(1);
+                }
+                break;
             case 'h':
                 cout << description << endl;
                 exit(1);
                 break;
-            case 'v':
-                verbose = true;
-                break;
             case 'm':
-                string temp = string(optarg);
+                temp = string(optarg);
                 if (temp != "REALTIME" && temp != "SNAPSHOT") {
                     cerr << "Mode must be one of REALTIME or SNAPSHOT" << endl;
                     exit(1);
