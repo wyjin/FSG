@@ -149,14 +149,18 @@ static vector<string> files_to_track;
         struct fanotify_event_metadata* metadata;
         cerr << "size in scan_files: " << files_to_track.size() << endl;
         for (const string& file : files_to_track) {
+            cerr << "the files name is: " << file << endl;
             int mark = fanotify_mark(
                 fan,
                 FAN_MARK_ADD,
                 FAN_OPEN | FAN_EVENT_ON_CHILD,
                 AT_FDCWD,
                 file.c_str());
+            cerr << "mark is " << mark << endl;
             CHK(mark, -1);
+            cerr << "make it past the check" << endl;
             ssize_t buflen = read(fan, buf, sizeof(buf));
+            cerr << "buflen: " << buflen << endl;
             CHK(buflen, -1);
             metadata = (struct fanotify_event_metadata*)&buf;
             if (!FAN_EVENT_OK(metadata, buflen)) {
