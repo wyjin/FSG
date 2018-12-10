@@ -141,7 +141,7 @@ static vector<string> files_to_track;
     }
 
     void scan_files() {
-        int fan = fanotify_init(FAN_CLASS_NOTIF, O_RDONLY);
+        int fan = fanotify_init(FAN_CLASS_NOTIF | FAN_NONBLOCK, O_RDONLY);
         CHK(fan, -1);
         char buf[4096];
         string fdpath;
