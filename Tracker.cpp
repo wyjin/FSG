@@ -207,7 +207,7 @@ static vector<string> files_to_track;
     }
 
     void repeatedly_scan_files() {
-        int fan = fanotify_init(FAN_CLASS_NOTIF | FAN_NONBLOCK, O_RDONLY);
+        int fan = fanotify_init(FAN_CLASS_NOTIF, O_RDONLY);
         while(true) {
             lock_guard<mutex> lock(files_to_track_lock);
             scan_files(fan);
