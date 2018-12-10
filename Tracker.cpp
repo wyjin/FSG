@@ -140,8 +140,7 @@ static vector<string> files_to_track;
         return result;
     }
 
-    void scan_files() {
-        int fan = fanotify_init(FAN_CLASS_NOTIF | FAN_NONBLOCK, O_RDONLY);
+    void scan_files(int fan) {
         CHK(fan, -1);
         char buf[4096];
         string fdpath;
@@ -208,9 +207,10 @@ static vector<string> files_to_track;
     }
 
     void repeatedly_scan_files() {
+        int fan = fanotify_init(FAN_CLASS_NOTIF | FAN_NONBLOCK, O_RDONLY);
         while(true) {
             lock_guard<mutex> lock(files_to_track_lock);
-            scan_files();
+            scan_files(fan);
         }
     }
 
