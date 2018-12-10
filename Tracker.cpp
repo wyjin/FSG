@@ -192,9 +192,10 @@ static vector<string> files_to_track;
         if (files_to_track.empty()) {
             files_to_track.push_back("/");
             cerr << "size: " << files_to_track.size() << endl;
-            thread t(repeatedly_scan_files);
+            repeatedly_scan_files();
+            //thread t(repeatedly_scan_files);
             //thread t(&Solution::repeatedly_scan_files, this);
-            t.join();
+            //t.join();
         }
         else {
             thread t(repeatedly_scan_files);
