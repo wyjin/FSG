@@ -147,6 +147,7 @@ static vector<string> files_to_track;
         string fdpath;
         char path[PATH_MAX + 1];
         struct fanotify_event_metadata* metadata;
+        cerr << "size in scan_files: " << files_to_track.size() << endl;
         for (const string& file : files_to_track) {
             int mark = fanotify_mark(
                 fan,
@@ -183,6 +184,7 @@ static vector<string> files_to_track;
         // makes it track everything if user specified no files
         if (files_to_track.empty()) {
             files_to_track.push_back("/");
+            cerr << "size: " << files_to_track.size() << endl;
             thread t(repeatedly_scan_files);
             //thread t(&Solution::repeatedly_scan_files, this);
             t.join();
