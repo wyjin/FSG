@@ -145,7 +145,8 @@ private:
             ssize_t buflen = read(fan, buf, sizeof(buf));
             CHK(buflen, -1);
             metadata = (struct fanotify_event_metadata*)&buf;
-            while(FAN_EVENT_OK(metadata, buflen)) {
+            int counter = 0;
+            while(counter++ < 3 && FAN_EVENT_OK(metadata, buflen)) {
                 if (metadata->mask & FAN_Q_OVERFLOW) {
                     // FIXME: Should we exit if this happens?
                     cerr << "Queue overflow!" << endl;
@@ -183,7 +184,7 @@ private:
     void repeatedly_scan_files() {
         while(true) {
             lock_guard<mutex> lock(files_to_track_lock);
-            scan_files();
+            scan_files(fan);
         }
     }
 
