@@ -184,7 +184,7 @@ private:
     void repeatedly_scan_files() {
         while(true) {
             lock_guard<mutex> lock(files_to_track_lock);
-            scan_files(fan);
+            scan_files();
         }
     }
 
