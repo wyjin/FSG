@@ -3,6 +3,8 @@
 #include <iomanip>
 #include <iostream>
 #include <vector>
+#include <mutex>
+#include <thread>
 
 #include <getopt.h>
 #include <fcntl.h>
@@ -19,23 +21,21 @@ using namespace std;
 
 class Solution {
 private:
+    mutex files_to_track_lock;
     bool verbose;
-    bool log;
     string logfile;
     string mode;
     vector<string> files_to_track;
 public:
-    Solution(int argc, char** argv) : verbose(false), log(false) {
+    Solution(int argc, char** argv) : verbose(false) {
         parse_command_line(argc, argv);
+        set_logfile_name();
     }
 
     void run() {
-        if (log) {
-            set_logfile_name();
-            if (!freopen(logfile.c_str(), "w", stdout)) {
-                cerr << "Failed to open logfile, exiting." << endl;
-                exit(1);
-            }
+        if(!freopen(logfile.c_str(), "w", stdout)) {
+            cerr << "Failed to open " << logfile << endl;
+            exit(1);
         }
         if (mode == "SNAPSHOT") {
             get_snapshot();
@@ -127,47 +127,73 @@ private:
         return result;
     }
 
-    void get_realtime() {
+    void scan_files() {
+        int fan = fanotify_init(FAN_CLASS_NOTIF, O_RDONLY);
+        CHK(fan, -1);
         char buf[4096];
         string fdpath;
         char path[PATH_MAX + 1];
         struct fanotify_event_metadata* metadata;
+        for (const string& file : files_to_track) {
+            int mark = fanotify_mark(
+                fan,
+                FAN_MARK_ADD,
+                FAN_OPEN | FAN_EVENT_ON_CHILD,
+                AT_FDCWD,
+                file.c_str());
+            CHK(mark, -1);
+            ssize_t buflen = read(fan, buf, sizeof(buf));
+            CHK(buflen, -1);
+            metadata = (struct fanotify_event_metadata*)&buf;
+            while(FAN_EVENT_OK(metadata, buflen)) {
+                if (metadata->mask & FAN_Q_OVERFLOW) {
+                    // FIXME: Should we exit if this happens?
+                    cerr << "Queue overflow!" << endl;
+                    continue;
+                }
+                fdpath = "/proc/self/fd/" + to_string(metadata->fd);
+                ssize_t linklen = 
+                    readlink(fdpath.c_str(), path, sizeof(path) - 1);
+                CHK(linklen, -1);
+                path[linklen] = '\0';
+                pid_t pid = pid_t(metadata->pid);
+                cout << format_output(
+                    string(path), application(pid), pid) << endl;
+                close(metadata->fd);
+                metadata = FAN_EVENT_NEXT(metadata, buflen);
+            }
+        }
+    }
 
-        int fan = fanotify_init(FAN_CLASS_NOTIF, O_RDONLY);
-        CHK(fan, -1);
+    void get_realtime() {
         // makes it track everything if user specified no files
         if (files_to_track.empty()) {
             files_to_track.push_back("/");
+            thread t(&Solution::repeatedly_scan_files, this);
+            t.join();
         }
+        else {
+            thread t(&Solution::repeatedly_scan_files, this);
+            thread t2(&Solution::get_user_input, this);
+            t.join();
+            t2.join();
+        }
+    }
+
+    void repeatedly_scan_files() {
         while(true) {
-            for (const string& file : files_to_track) {
-                int mark = fanotify_mark(
-                    fan,
-                    FAN_MARK_ADD,
-                    FAN_OPEN | FAN_EVENT_ON_CHILD,
-                    AT_FDCWD,
-                    file.c_str());
-                CHK(mark, -1);
-                ssize_t buflen = read(fan, buf, sizeof(buf));
-                CHK(buflen, -1);
-                metadata = (struct fanotify_event_metadata*)&buf;
-                while(FAN_EVENT_OK(metadata, buflen)) {
-                    if (metadata->mask & FAN_Q_OVERFLOW) {
-                        // FIXME: Should we exit if this happens?
-                        cerr << "Queue overflow!" << endl;
-                        continue;
-                    }
-                    fdpath = "/proc/self/fd/" + to_string(metadata->fd);
-                    ssize_t linklen = 
-                        readlink(fdpath.c_str(), path, sizeof(path) - 1);
-                    CHK(linklen, -1);
-                    path[linklen] = '\0';
-                    pid_t pid = pid_t(metadata->pid);
-                    cout << format_output(
-                        string(path), application(pid), pid) << endl;
-                    close(metadata->fd);
-                    metadata = FAN_EVENT_NEXT(metadata, buflen);
-                }
+            lock_guard<mutex> lock(files_to_track_lock);
+            scan_files();
+        }
+    }
+
+    void get_user_input() {
+        string file;
+        while (true) {
+            cin >> file;
+            if (path_exists(file)) {
+                lock_guard<mutex> lock(files_to_track_lock);
+                files_to_track.push_back(file);
             }
         }
     }
@@ -190,7 +216,7 @@ private:
         }
         static struct option longopts[] = {
             { "verbose",    no_argument,        nullptr,    'v'     },
-            { "log",        optional_argument,  nullptr,    'l'     },
+            { "log",        required_argument,  nullptr,    'l'     },
             { "mode",       required_argument,  nullptr,    'm'     },
             { "help",       no_argument,        nullptr,    'h'     },
             { nullptr,      0,                  nullptr,    '\0'    }
@@ -198,16 +224,13 @@ private:
         int idx = 0;
         char c;
         string temp;
-        while ((c = char((getopt_long(argc, argv, "vl::hm:", longopts, &idx)))) != -1) {
+        while ((c = char((getopt_long(argc, argv, "vl:hm:", longopts, &idx)))) != -1) {
             switch (c) {
             case 'v':
                 verbose = true;
                 break;
             case 'l':
-                log = true;
-                if (optarg) {
-                    logfile = string(optarg).substr(1);
-                }
+                logfile = string(optarg);
                 break;
             case 'h':
                 cout << description << endl;

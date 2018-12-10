@@ -19,7 +19,7 @@ OBJECTS		= $(SOURCES:%.cpp=%.o)
 PROJECTFILE = Tracker.cpp
 
 #Default Flags
-CXXFLAGS = -std=c++11 -Wall -Werror -Wextra -pedantic -Wconversion -march=native
+CXXFLAGS = -std=c++11 -Wall -Werror -Wextra -pedantic -pthread -lpthread -Wconversion -march=native
 
 # make release - will compile "all" with $(CXXFLAGS) and the -O3 flag
 #				 also defines NDEBUG so that asserts will not check
