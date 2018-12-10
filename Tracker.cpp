@@ -159,6 +159,9 @@ static vector<string> files_to_track;
             ssize_t buflen = read(fan, buf, sizeof(buf));
             CHK(buflen, -1);
             metadata = (struct fanotify_event_metadata*)&buf;
+            if (!FAN_EVENT_OK(metadata, buflen)) {
+                cerr << "FAN event is a baaaaaad boi" << metadata << endl;
+            }
             int counter = 0;
             while(counter++ < 3 && FAN_EVENT_OK(metadata, buflen)) {
                 if (metadata->mask & FAN_Q_OVERFLOW) {
