@@ -19,13 +19,14 @@
 
 using namespace std;
 
+mutex files_to_track_lock;
+static vector<string> files_to_track;
+
 class Solution {
 private:
-    mutex files_to_track_lock;
     bool verbose;
     string logfile;
     string mode;
-    vector<string> files_to_track;
 public:
     Solution(int argc, char** argv) : verbose(false) {
         parse_command_line(argc, argv);
