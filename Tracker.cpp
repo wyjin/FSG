@@ -22,16 +22,28 @@ using namespace std;
 mutex files_to_track_lock;
 static vector<string> files_to_track;
 
-class Solution {
-private:
+//class Solution {
+//private:
     bool verbose;
     string logfile;
     string mode;
-public:
-    Solution(int argc, char** argv) : verbose(false) {
-        parse_command_line(argc, argv);
-        set_logfile_name();
-    }
+//public:
+    // Solution(int argc, char** argv) : verbose(false) {
+    //     parse_command_line(argc, argv);
+    //     set_logfile_name();
+    // }
+
+    void get_user_input();
+    void get_realtime();
+    void get_snapshot();
+    void set_logfile_name();
+    void repeatedly_scan_files();
+    string get_current_time();
+    void print_formatted_snapshot_result(const string& result);
+    string format_output(const string& path, const string& app, pid_t pid);
+    string application(pid_t pid);
+    bool path_exists(const string& path);
+
 
     void run() {
         if(!freopen(logfile.c_str(), "w", stdout)) {
@@ -46,7 +58,7 @@ public:
         }
 
     }
-private:
+//private:
     // if user failed to provide a file, this will set it
     // to LOGFILE_date/time
     void set_logfile_name() {
@@ -171,12 +183,15 @@ private:
         // makes it track everything if user specified no files
         if (files_to_track.empty()) {
             files_to_track.push_back("/");
-            thread t(&Solution::repeatedly_scan_files, this);
+            thread t(repeatedly_scan_files);
+            //thread t(&Solution::repeatedly_scan_files, this);
             t.join();
         }
         else {
-            thread t(&Solution::repeatedly_scan_files, this);
-            thread t2(&Solution::get_user_input, this);
+            thread t(repeatedly_scan_files);
+            thread t2(get_user_input);
+            //thread t(&Solution::repeatedly_scan_files, this);
+            //thread t2(&Solution::get_user_input, this);
             t.join();
             t2.join();
         }
@@ -253,10 +268,13 @@ private:
             optind++;
         }
     }
-}; // Solution
+//}; // Solution
 
 int main(int argc, char** argv) {
-    Solution s(argc, argv);
-    s.run();
+    parse_command_line(argc, argv);
+    set_logfile_name();
+    run();
+    //Solution s(argc, argv);
+    //s.run();
     return 0;
 }
