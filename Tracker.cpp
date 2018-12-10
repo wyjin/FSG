@@ -22,6 +22,11 @@ using namespace std;
 mutex files_to_track_lock;
 static vector<string> files_to_track;
 
+char buf[4096];
+string fdpath;
+        char path[PATH_MAX + 1];
+        struct fanotify_event_metadata* metadata;
+
 //class Solution {
 //private:
     bool verbose;
@@ -142,10 +147,6 @@ static vector<string> files_to_track;
 
     void scan_files(int fan) {
         CHK(fan, -1);
-        char buf[4096];
-        string fdpath;
-        char path[PATH_MAX + 1];
-        struct fanotify_event_metadata* metadata;
         cerr << "size in scan_files: " << files_to_track.size() << endl;
         for (const string& file : files_to_track) {
             cerr << "the files name is: " << file << endl;
