@@ -172,7 +172,7 @@ static vector<string> files_to_track;
                 CHK(linklen, -1);
                 path[linklen] = '\0';
                 pid_t pid = pid_t(metadata->pid);
-                cout << format_output(
+                cerr << format_output(
                     string(path), application(pid), pid) << endl;
                 close(metadata->fd);
                 metadata = FAN_EVENT_NEXT(metadata, buflen);
